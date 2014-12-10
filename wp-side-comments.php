@@ -13,7 +13,7 @@
 		die( '-1' );
 	}
 
-	define( 'CTLT_WP_SIDE_COMMENTS_PLUGIN_URL', get_stylesheet_directory_uri() . '/inc/wp-side-comments/' );
+	define( 'CTLT_WP_SIDE_COMMENTS_PLUGIN_URL', get_template_directory_uri() . '/inc/wp-side-comments/' );
 
 
 	class CTLT_WP_Side_Comments
