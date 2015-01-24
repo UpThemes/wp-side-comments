@@ -6,7 +6,7 @@
 	Description: Based on aroc's Side Comments .js to enable inline commenting
 	Author: CTLT Dev, Richard Tape
 	Author URI: http://ctlt.ubc.ca
-	Version: 0.1.3
+	Version: 0.1.4
 	*/
 
 	if( !defined( 'ABSPATH' ) ){
@@ -453,22 +453,22 @@
 			}
 
 			//$commentApproval = apply_filters( 'wp_side_comments_default_comment_approved_status', 1 );
-			
+
 			//if comments need to be approved manually or whitelist required and anonymous user
 			if( $commentModeration || ($commentWhitelist && !is_user_logged_in()) ){
 				$commentApproval = 0;
 			} else{
 				$commentApproval = 1;
 			}
-			
+
 			$commentError = false;
-			
-			
+
+
 			//if users must be logged in and they are not
 			if( ($loggedInToComment || $requireNameEmail) && !is_user_logged_in() )
 			{
 				$commentError = true;
-				
+
 				$result = array(
 					'type' => 'error',
 					'message' => __( 'You must be signed in to comment', 'wp-side-comments' ),
@@ -479,7 +479,7 @@
 			elseif( empty($commentText) )
 			{
 				$commentError = true;
-				
+
 				$result = array(
 					'type' => 'error',
 					'message' => __( 'Comment cannot be blank', 'wp-side-comments' ),
@@ -489,7 +489,7 @@
 			elseif( str_word_count($commentText) <= 1 )
 			{
 				$commentError = true;
-				
+
 				$result = array(
 					'type' => 'error',
 					'message' => __( 'Comment too short', 'wp-side-comments' ),
@@ -512,7 +512,7 @@
 					'comment_date' => null,
 					'comment_approved' => $commentApproval
 				);
-	
+
 				$newCommentID = wp_insert_comment( $wpInsertCommentArgs );
 			}
 
