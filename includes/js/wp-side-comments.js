@@ -14,7 +14,7 @@ jQuery(document).ready(function($) {
 
 	// Format our data as side-comments.js requires
 	currentUser = {
-		
+
 		id: userData.id,
 		avatarUrl: userData.avatar,
 		name: userData.name
@@ -27,7 +27,7 @@ jQuery(document).ready(function($) {
 	for( key in postComments ){
 
 		if( arrayHasOwnIndex( postComments, key ) ){
-			
+
 			var additionalObject = {
 				'sectionId': key,
 				'comments': postComments[key]
@@ -48,23 +48,23 @@ jQuery(document).ready(function($) {
 	}
 
 	var newCommentID;
-	
+
 	//look for comment hash tag
 	var commentHashTag = location.hash.match(/^#comment-([0-9]+).*$/);
-	
+
 	//if there is a comment hash tag match
 	if ( commentHashTag != null ) {
 		//get the ID from match index
 		var previousCommentID = commentHashTag[1];
-		
+
 		//get previous comment by ID
 		var previousComment = $('.commentable-section[data-section-id="' + previousCommentID + '"]' );
-		
-		
+
+
 		$('html, body').animate({
 		    scrollTop: (previousComment.offset().top - 100)
 		},500);
-		
+
 		//if previous comment exists
 		if (previousComment.length) {
 			//open the comment
@@ -74,7 +74,18 @@ jQuery(document).ready(function($) {
 
 	// We need to listen for the post and delete events and post an AJAX response back to PHP
 	sideComments.on( 'commentPosted', function( comment ){
-		
+
+		// stash the current comment
+		var currentComment = $('.commentable-section[data-section-id="' + comment.sectionId + '"] .comments-wrapper' );
+
+		// bail if a comment is already pending
+		if ( currentComment.hasClass('comment-pending') ) {
+			return;
+		}
+
+		// otherwise add the comment pending class
+		currentComment.addClass('comment-pending');
+
 		$.ajax( {
 			url: ajaxURL,
 			dataType: 'json',
@@ -95,57 +106,57 @@ jQuery(document).ready(function($) {
 				commentBox = $('.comment-box', currentComment),
 				//get the error div if it exists
 				errorDiv = $('.error-message', currentComment);
-				
+
 				if ( response.type == 'error' ) {
 					//add an error class to the current comment wrapper
 					currentComment.addClass('error');
-					
+
 					//if the error div doesn't exist, create it
 					if ( !errorDiv.length ) {
 						//and add the error message
 						commentBox.after('<div class="error-message">' + response.message + '</div>');
-						
+
 						//set errorDiv to the newly created element
 						errorDiv = $('.error-message', currentComment);
 					} else{
 						//otherwise set the error message
 						errorDiv.text(response.message);
 					}
-					
+
 					//if login is required and the login button doesn't exist
 					if ( response.loginURL != undefined && !$('.login-button', currentComment).length ) {
 						//add comment ID to redirect URL
 						var redirectURL = response.loginURL + "%23comment-" + comment.sectionId;
-						
+
 						//create the login button
 						errorDiv.after('<div class="login-button"><a href="' + redirectURL + '">Login</a></div>');
-						
+
 						//set loginButton to newly created element
 						var loginButton = $('.login-button', currentComment);
 					}
-					
+
 				} else if( response.type == 'success' ){
 					//remove erorr class, add sucess class
 					currentComment.removeClass('error').addClass('success');
-					
+
 					//remove error message on success
 					errorDiv.remove();
-					
+
 					//if comment needs approval
 					if ( !response.commentApproval ) {
 						//remove everything except moderation message
 						$('.comment-form', currentComment).html('<div class="error-message">' + response.message + '</div>');
 					} else{
 						//otherwise if comment doesn't need approval
-						
+
 						//add comment to steam
 						comment.id = response.newCommentID;
 						newCommentID = response.newCommentID;
-	
+
 						// We'll need this if we want to delete the comment.
 						var newComment = sideComments.insertComment( comment );
 					}
-					
+
 
 				} else{
 
@@ -153,6 +164,9 @@ jQuery(document).ready(function($) {
 					console.log( response );
 
 				}
+
+				// all done, remove the comment pending class
+				currentComment.removeClass('comment-pending');
 
 			}
 		} );
@@ -162,7 +176,7 @@ jQuery(document).ready(function($) {
 	// Listen to "commentDeleted" and send a request to your backend to delete the comment.
 	// More about this event in the "docs" section.
 	sideComments.on( 'commentDeleted', function( comment ){
-	
+
 
 		$.ajax( {
 			url: ajaxURL,
@@ -175,7 +189,7 @@ jQuery(document).ready(function($) {
 				commentID: comment.id
 			},
 			success: function( response ){
-				
+
 				if( response.type == 'success' ){
 
 					comment.sectionId = comment.sectionId;
